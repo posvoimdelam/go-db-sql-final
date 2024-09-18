@@ -33,6 +33,7 @@ func TestAddGetDelete(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db") // настройте подключение к БД
 	require.NoError(t, err)
+	defer db.Close()
 
 	store := NewParcelStore(db)
 	parcel := getTestParcel()
@@ -55,7 +56,7 @@ func TestAddGetDelete(t *testing.T) {
 	err = store.Delete(id)
 	require.NoError(t, err)
 	_, err = store.Get(id)
-	require.Equal(t, sql.ErrNoRows, err)
+	require.ErrorIs(t, err, sql.ErrNoRows)
 }
 
 // TestSetAddress проверяет обновление адреса
@@ -63,6 +64,7 @@ func TestSetAddress(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db") // настройте подключение к БД
 	require.NoError(t, err)
+	defer db.Close()
 
 	store := NewParcelStore(db)
 	parcel := getTestParcel()
@@ -79,7 +81,8 @@ func TestSetAddress(t *testing.T) {
 	require.NoError(t, err)
 	// check
 	// получите добавленную посылку и убедитесь, что адрес обновился
-	res, _ := store.Get(id)
+	res, err := store.Get(id)
+	require.NoError(t, err)
 	require.Equal(t, newAddress, res.Address)
 }
 
@@ -88,6 +91,7 @@ func TestSetStatus(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db") // настройте подключение к БД
 	require.NoError(t, err)
+	defer db.Close()
 
 	store := NewParcelStore(db)
 	parcel := getTestParcel()
@@ -113,6 +117,7 @@ func TestGetByClient(t *testing.T) {
 	// prepare
 	db, err := sql.Open("sqlite", "tracker.db") // настройте подключение к БД
 	require.NoError(t, err)
+	defer db.Close()
 
 	store := NewParcelStore(db)
 
